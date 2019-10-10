@@ -244,3 +244,5 @@ main_data$grp
 
 
 #Just to understand where we are with git
+#push was successful 
+#next is to try pulling
