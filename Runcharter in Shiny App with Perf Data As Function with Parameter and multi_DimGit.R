@@ -161,8 +161,7 @@ server <- function(input, output) {
       
   #function to generate shifts data
       shift_fun <- function(shift_data,run_choice=FALSE){ 
-        
-        period_to_check <- months(input$num_run)
+        period_to_check <- input$num_run
         shifts<-shift_data$sustained%>%
           #RunData$sustained%>%
           separate(grp,c("Indicator Name", "Business Unit", "Hospital Site"),sep="_") %>%
@@ -171,20 +170,22 @@ server <- function(input, output) {
           ddply("`Indicator Name`",head,1) # this will select the first record in each group
         
       if(run_choice==TRUE){
-          ## Using run_start 
+          ## Using run_start
+          
           shifts%>%
             #mutate(Day_runs=extend_to - start_date)%>%
           mutate(Month_runs = interval(start=start_date,end=extend_to)%/%months(1))%>%
-            filter(Month_runs<=period_to_check)%>%
-            select(`Indicator Name`,`Business Unit`,`Hospital Site`,`Start of Shift`= start_date,`End of shift` = end_date,`Month since start of shift`=Month_runs)
+            filter(Month_runs <=period_to_check)%>%
+            select(`Indicator Name`,`Business Unit`,`Hospital Site`,`Start of Shift`= start_date,`End of shift` = end_date,`Month since start of shift`= Month_runs)
           
         } else {
           ## Using run_end -- This makes it easier to test shift for immediate last month
+          
           shifts%>%
             #mutate(Day_runs=extend_to-end_date)%>%
             mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
             filter(Month_runs<=period_to_check)%>%
-            select(`Indicator Name`,`Business Unit`,`Hospital Site`,`Start of Shift` = start_date,`End of Shift`= end_date,`Month since end of shift`=Month_runs)
+            select(`Indicator Name`,`Business Unit`,`Hospital Site`,`Start of Shift` = start_date,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
 
         }
         
@@ -205,41 +206,34 @@ RuncharterShiny(data=main_data
 
 
 
-# to transform the sustained data
-
-#columns <- quos(a,b,c)
-new_columns <- quos("Indicator Name", "Business Unit", "Hospital Site")
-
-#grp=paste(!!!columns, sep="_")
-
-RunData$sustained%>%
-  separate(grp,sapply(new_columns,quo_name),sep="_") %>%
-  View()
-
-#this columns names can also be supplied as below:
-RunData$sustained%>%
-  separate(grp,c("Indicator Name", "Business Unit", "Hospital Site"),sep="_") %>%
-  View()
- 
-#You can use NA to suppress any unwanted columns:
-#this columns names can also be supplied as below:
-RunData$sustained%>%
-  separate(grp,c("Indicator Name", NA, "Hospital Site"),sep="_") %>%
-  View()
-
-
-interval(start=RunData$sustained$start_date,end=RunData$sustained$extend_to)%/%months(1)
-
+# 
+# 
+# # to transform the sustained data
+# 
+# #columns <- quos(a,b,c)
+# new_columns <- quos("Indicator Name", "Business Unit", "Hospital Site")
+# 
+# #grp=paste(!!!columns, sep="_")
+# 
+# RunData$sustained%>%
+#   separate(grp,sapply(new_columns,quo_name),sep="_") %>%
+#   View()
+# 
+# #this columns names can also be supplied as below:
+# RunData$sustained%>%
+#   separate(grp,c("Indicator Name", "Business Unit", "Hospital Site"),sep="_") %>%
+#   View()
+#  
+# #You can use NA to suppress any unwanted columns:
+# #this columns names can also be supplied as below:
+# RunData$sustained%>%
+#   separate(grp,c("Indicator Name", NA, "Hospital Site"),sep="_") %>%
+#   View()
 
 
-month1 <- ymd('2019-01-01')
-month2 <- ymd('2019-09-01')
-Month_runs = interval(start=month1,end=month2)%/%months(1)
-Month_runs+1
-main_data%>%
-  separate(grp,c("Indicator Name", NA, NA),sep="_") %>%
-  pull(`Indicator Name`)
-  View()
-main_data$grp
+
+
+
+
 
 
