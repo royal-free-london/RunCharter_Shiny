@@ -48,7 +48,7 @@ shinyApp(
 ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      textInput("title", "Title", "Performance Measurement App"),
+      textInput("title", "Title", "RFL Performance Measurement: Signal Finder"),
       checkboxInput("run", "Use run_start", FALSE),
       
       
