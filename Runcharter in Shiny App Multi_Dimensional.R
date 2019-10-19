@@ -167,6 +167,7 @@ server <- function(input, output) {
           separate(grp,c("Indicator Name", "Business Unit", "Hospital Site"),sep="_") %>%
           group_by(`Indicator Name`)%>%
           arrange(`Indicator Name`,desc(extend_to))%>%
+          #top_n(1,extend_t)%>% # To test if this will also select the first record in each group
           ddply("`Indicator Name`",head,1) # this will select the first record in each group
         
       if(run_choice==TRUE){
