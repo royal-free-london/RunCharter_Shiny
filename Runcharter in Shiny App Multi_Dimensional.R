@@ -20,13 +20,21 @@ shinyData <- read_csv(path) # see Shiny_Dev.R for the import script from SQL Ser
 # arrange(grp,date)
 
 #dimensions <- ifelse(is.na(shinyData$Business_Unit),paste(shinyData$Metric_name,shinyData$SiteDesc)
+<<<<<<< HEAD
 #,paste(shinyData$Metric_name,shinyData$Business_Unit))
+=======
+                            #,paste(shinyData$Metric_name,shinyData$Business_Unit))
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
 #dimensions
 #data for for run chart
 main_data <- shinyData%>%
   mutate(grp2= paste(Metric_name,SiteDesc,Business_Unit,sep='_'))%>% # change
   #mutate(grp2 = ifelse(is.na(shinyData$Business_Unit),paste(shinyData$Metric_name,shinyData$SiteDesc,sep = "_")
+<<<<<<< HEAD
   #,paste(shinyData$Metric_name,shinyData$Business_Unit,sep = "_")))%>%
+=======
+                       #,paste(shinyData$Metric_name,shinyData$Business_Unit,sep = "_")))%>%
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
   #mutate(grp2= grp)%>%
   select(date=ReportDate,grp=grp2,Metric_name,y=Performance)%>% 
   #filter(year(date)>=2018)%>%
@@ -157,8 +165,13 @@ RuncharterShiny <- function(p_data,n = 1,shift_check=FALSE,...){
         # data for shifts starts
         shift_data <- main_data %>%
           filter(grp %in% grp & #all metrics will  show in the table
+<<<<<<< HEAD
                    #year(date) >= 2014 & year(date) <= 2019)%>%
                    year(date) >= input$date[1] & year(date) <= input$date[2])%>%
+=======
+                  #year(date) >= 2014 & year(date) <= 2019)%>%
+                  year(date) >= input$date[1] & year(date) <= input$date[2])%>%
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
           #separate(grp,c("Indicator Name", "Hospital Site","Business Unit"),sep="_") %>% #this can be used to separate out the metric name
           runcharter(grpvar="grp",datecol="date",yval="y"
                      ,med_rows=12,
@@ -171,14 +184,22 @@ RuncharterShiny <- function(p_data,n = 1,shift_check=FALSE,...){
         shift_fun <- function(shift_data,run_choice=FALSE){ 
           
           period_to_check <- input$num_run
+<<<<<<< HEAD
           
+=======
+        
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
           shifts<-shift_data$sustained%>%
             #RunData$sustained%>%
             separate(grp,c("Indicator Name", "Hospital Site","Business Unit"),sep="_") %>%
             group_by(`Indicator Name`)%>%
             arrange(`Indicator Name`,desc(end_date))%>%
             top_n(1,end_date)#%>%            # To test if this will also select the first record in each group
+<<<<<<< HEAD
           #ddply("`Indicator Name`",head,1) # this will select the first record in each group
+=======
+            #ddply("`Indicator Name`",head,1) # this will select the first record in each group
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
           
           if(run_choice==TRUE){
             ## Using run_start
@@ -207,7 +228,11 @@ RuncharterShiny <- function(p_data,n = 1,shift_check=FALSE,...){
         if (shift_check == TRUE){
           shift_fun(shift_data
                     #,run_choice = input$run
+<<<<<<< HEAD
           )
+=======
+                    )
+>>>>>>> d7d56667d7e7a6ba1cd635165835e2ecca14248f
         }
         
       })
