@@ -89,7 +89,7 @@ server <- function(input, output) {
                        grp %in% input$grp &
                          year(date) >= input$date[1] & year(date) <= input$date[2])
     
-    med_rows <- input$num1
+ med_rows <- input$num1
     runlength <- input$num2
     chart_title <- "Analysis of RFL Performance"
     line_colr <- input$color
@@ -152,17 +152,17 @@ server <- function(input, output) {
         group_by(grp)%>%
         arrange(grp,desc(end_date))%>%
         top_n(1,end_date)#%>%            # To test if this will also select the first record in each group
-      #ddply(grp,head,1) # this will select the first record in each group
+        #ddply(grp,head,1) # this will select the first record in each group
       
-      shifts%>%
-        mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
-        filter(Month_runs<=period_to_check)%>%
-        mutate(shift_Start=end_date-months(input$num2)+months(1))%>%
-        select(`Indicator Name`=grp,`Start of Shift` = shift_Start,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
-    }
+     shifts%>%
+          mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
+          filter(Month_runs<=period_to_check)%>%
+          mutate(shift_Start=end_date-months(input$num2)+months(1))%>%
+          select(`Indicator Name`=grp,`Start of Shift` = shift_Start,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
+     }
     
     shift_fun(shift_data)
-  })
+        })
 }
 
 
