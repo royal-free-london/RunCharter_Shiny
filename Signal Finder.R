@@ -3,12 +3,11 @@
 #install.packages("devtools")
 #devtools::install_github("johnmackintosh/runcharter")
 
-#installations and data manipulation
+#package installations 
 #install.packages("shiny")
-library(shiny)
 #install.packages("colourpicker")
+library(shiny)
 library(colourpicker)
-library(plyr) #for the ddply function
 library(lubridate)
 library(runcharter)
 library(tidyverse)
@@ -17,15 +16,10 @@ library(tidyverse)
 #importing the exported data back
 sFldr <- "//netshare-ds3/Performance/Team/Jonathan/Shiny_App/"
 sFile <- "shinyData_New_Table.csv" #This  uses the RF_Inidcators database
-#sFile <- "shinyData.csv" #This  uses the RF_Performance database
 path <- file.path(sFldr,sFile)
-shinyData <- read_csv(path) # see Shiny_Dev.R for the import script from SQL Server
+shinyData <- read_csv(path) # see Data_Wrangling.R for the import script from SQL Server
 
-
-  
-
-#View(shinyData)
-  main_data <- shinyData%>%
+main_data <- shinyData%>%
     mutate(grp2= paste(Indicator_Name,Business_Unit,sep='_'))%>% # change
     select(date=Report_Date,grp=grp2,y=Performance)%>% 
     arrange(grp,date)
@@ -51,15 +45,13 @@ ui <- fluidPage(
                   max = round(max(year(main_data$date)),0),
                   value = c(2015,2019)),
       
-      
       selectInput(inputId = "grp",
                   label = "Indicators",
                   choices = levels(as.factor(main_data$grp)),
                   #choices = levels(as.factor(trimws(substring(data$grp,1,regexpr("_",data$grp)-1)))),
                   multiple = FALSE,
                   selected = levels(as.factor(main_data$grp))[2]),
-      #selected = levels(as.factor(trimws(substring(data$grp,1,regexpr("_",data$grp)-1))))[2]), #this can be use to separate the metric name
-      
+    
       numericInput("num1", "Median rows", 12,1),
       numericInput("num2", "Number of runs", 8,1),
       colourInput("color", "Line color", value = "blue"),
@@ -79,7 +71,6 @@ ui <- fluidPage(
 )
 
 
-
 #function to generate shifts data
 shift_fun <- function(shift_data,period_to_check,run){ 
   
@@ -87,10 +78,9 @@ shift_fun <- function(shift_data,period_to_check,run){
     arrange(grp,desc(end_date))%>%
     separate(grp,c("Indicator_Name","Business_Unit"),sep="_")%>%
     group_by(Indicator_Name)%>%
-    top_n(1,end_date)#%>%            # To test if this will also select the first record in each group
-  #ddply(grp,head,1) # this will select the first record in each group
+    top_n(1,end_date)       # This will select the first record in each group
   
-  shifts%>%
+ shifts%>%
     mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
     filter(Month_runs<=period_to_check)%>%
     mutate(shift_Start=end_date-months(run)+months(1))%>%
@@ -106,7 +96,7 @@ server <- function(input, output) {
     plot_data<- filter(main_data,
                        grp %in% input$grp &
                          year(date) >= input$date[1] & year(date) <= input$date[2])
-                          #year(date) >= 2014 & year(date) <= 2019)
+                          
  med_rows <- input$num1
     runlength <- input$num2
     chart_title <- "Analysis of RFL Performance"
