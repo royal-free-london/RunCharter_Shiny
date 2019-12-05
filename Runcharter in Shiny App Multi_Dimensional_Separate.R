@@ -14,17 +14,30 @@ library(plyr) #for the ddply function
 
 #importing the exported data back
 sFldr <- "//netshare-ds3/Performance/Team/Jonathan/Shiny_App/"
-#sFile <- "shinyData.csv"
 sFile <- "shinyData_New_Table.csv" #This  uses the RF_Inidcators database
+#sFile <- "shinyData.csv" #This  uses the RF_Performance database
 path <- file.path(sFldr,sFile)
 shinyData <- read_csv(path) # see Shiny_Dev.R for the import script from SQL Server
 
-#data for for run chart
-main_data <- shinyData%>%
-  select(date=Report_Date,grp=Indicator_Name,y=Performance)%>% 
-  arrange(grp,date)
+#head(shinyData[,3:10])
 
-# 
+#nrow(shinyData)
+#data for for run chart
+
+#   main_data <- shinyData%>%
+#     select(date=Report_Date,grp=Indicator_Name,y=Performance)%>%
+#     arrange(grp,date)
+  
+
+#View(shinyData)
+  main_data <- shinyData%>%
+    mutate(grp2= paste(Indicator_Name,Business_Unit,sep='_'))%>% # change
+    select(date=Report_Date,grp=grp2,y=Performance)%>% 
+    #group_by(date)%>%
+    arrange(grp,date)
+    
+#View(main_data)
+# head(main_data)
 # shinyData%>%
 #   filter(Indicator_Code == 'SQU05a')%>%
 #   group_by(Month)
@@ -38,7 +51,7 @@ ui <- fluidPage(
       #checkboxInput("run", "Use run_start", FALSE),
       
       
-      sliderInput(inputId = "num_run", 
+      sliderInput(inputId = "period", 
                   label = "Period to check",
                   min = 1, 
                   max = 12,
@@ -78,6 +91,45 @@ ui <- fluidPage(
 )
 
 
+
+#data for shifts starts
+# shift_data <- main_data %>%
+#   filter(grp %in% grp & #all metrics will  show in the table
+#            year(date) >= 2014 & year(date) <= 2019)%>%
+#            #year(date) >= input$date[1] & year(date) <= input$date[2])%>%
+#   runcharter(grpvar="grp",datecol="date",yval="y"
+#              ,med_rows=12,
+#              runlength=8
+#              ,direction = "both"
+#   )
+# shift_data$sustained
+
+#numrun <- 3
+#function to generate shifts data
+shift_fun <- function(shift_data,period_to_check,run){ 
+  
+  #period_to_check <- numrun #input$period
+  
+  shifts<-shift_data$sustained%>%
+    #group_by(grp)%>%
+    arrange(grp,desc(end_date))%>%
+    separate(grp,c("Indicator_Name","Business_Unit"),sep="_")%>%
+    #group_by(Indicator_Name,Business_Unit)%>%
+    group_by(Indicator_Name)%>%
+    top_n(1,end_date)#%>%            # To test if this will also select the first record in each group
+  #ddply(grp,head,1) # this will select the first record in each group
+  
+  shifts%>%
+    mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
+    filter(Month_runs<=period_to_check)%>%
+    #mutate(shift_Start=end_date-months(input$num2)+months(1))%>%
+    mutate(shift_Start=end_date-months(run)+months(1))%>%
+    #select(`Indicator Name`=grp,`Start of Shift` = shift_Start,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
+    select(Indicator_Name,Business_Unit,`Start of Shift` = shift_Start,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
+  }
+
+#shift_fun(shift_data)
+
 # Define the server logic
 
 server <- function(input, output) {
@@ -88,7 +140,7 @@ server <- function(input, output) {
     plot_data<- filter(main_data,
                        grp %in% input$grp &
                          year(date) >= input$date[1] & year(date) <= input$date[2])
-    
+                          #year(date) >= 2014 & year(date) <= 2019)
  med_rows <- input$num1
     runlength <- input$num2
     chart_title <- "Analysis of RFL Performance"
@@ -128,7 +180,7 @@ server <- function(input, output) {
       select(Date=date,Indicator_Name = grp, Performance = y)
     data1
   })
-  
+ 
   output$table2 <- renderDataTable({
     
     # data for shifts starts
@@ -141,28 +193,13 @@ server <- function(input, output) {
                  runlength=8 
                  ,direction = "both"
       )
-    #shift_data$sustained
     
-    #function to generate shifts data
-    shift_fun <- function(shift_data){ 
-      
-      period_to_check <- input$num_run
-      
-      shifts<-shift_data$sustained%>%
-        group_by(grp)%>%
-        arrange(grp,desc(end_date))%>%
-        top_n(1,end_date)#%>%            # To test if this will also select the first record in each group
-        #ddply(grp,head,1) # this will select the first record in each group
-      
-     shifts%>%
-          mutate(Month_runs = interval(start=end_date,end=extend_to)%/%months(1))%>%
-          filter(Month_runs<=period_to_check)%>%
-          mutate(shift_Start=end_date-months(input$num2)+months(1))%>%
-          select(`Indicator Name`=grp,`Start of Shift` = shift_Start,`End of Shift`= end_date,`Month since end of shift` = Month_runs)
-     }
     
-    shift_fun(shift_data)
-        })
+    #function call to generate shifts data
+    
+    shift_fun(shift_data,period_to_check=input$period,run=input$num2)
+        
+    })
 }
 
 
@@ -170,5 +207,10 @@ server <- function(input, output) {
 #Run the shiny App'
 
 shinyApp(ui = ui,server= server)
+# rm(shift_fun)
+# rm(ui)
+# rm(server)
 
-
+main_data%>%
+  Filter(year(date)>= 2019)%>%
+View()
