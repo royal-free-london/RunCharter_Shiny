@@ -4,6 +4,7 @@
 
 library(odbc)
 #library(DBI)
+library(lubridate)
 library(tidyverse) # tidyverse contains library(readr),library(readxl),library(lubridate),library(stringr),#library(dplyr),library(tidyr)
                     # and library("ggplot2", lib.loc= "C:/Users/ju0d/Documents/R/win-library/3.6") #library(gglot2) stopped working after upgrade to version 3.6.1
 

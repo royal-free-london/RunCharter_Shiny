@@ -8,9 +8,11 @@
 library(shiny)
 #install.packages("colourpicker")
 library(colourpicker)
+library(plyr) #for the ddply function
+library(lubridate)
 library(runcharter)
 library(tidyverse)
-library(plyr) #for the ddply function
+
 
 #importing the exported data back
 sFldr <- "//netshare-ds3/Performance/Team/Jonathan/Shiny_App/"
