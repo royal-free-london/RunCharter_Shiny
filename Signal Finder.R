@@ -1,7 +1,7 @@
 
 # You will need to install runcharter if not already installsed
 #install.packages("devtools")
-#devtools::install_github("johnmackintosh/runcharter")
+devtools::install_github("johnmackintosh/runcharter")
 
 #package installations 
 #install.packages("shiny")
@@ -9,7 +9,7 @@
 library(shiny)
 library(colourpicker)
 library(lubridate)
-library(runcharter)
+library(runcharter, "lib.loc = C:/Users/ju0d/Documents/R/win-library/3.6")
 library(tidyverse)
 
 
@@ -49,11 +49,13 @@ ui <- fluidPage(
                   label = "Indicators",
                   choices = levels(as.factor(main_data$grp)),
                   #choices = levels(as.factor(trimws(substring(data$grp,1,regexpr("_",data$grp)-1)))),
-                  multiple = FALSE,
+                  multiple = TRUE, #FALSE,
                   selected = levels(as.factor(main_data$grp))[2]),
     
       numericInput("num1", "Median rows", 12,1),
       numericInput("num2", "Number of runs", 8,1),
+      #numericInput("point_size", "Point Size", 4,1),
+      #numericInput("highlight_point_size", "Highlight Point Size", 4,1),
       colourInput("color", "Line color", value = "blue"),
       colourInput("color2", "Median color", value = "#FFAE00")
     ),
@@ -102,6 +104,8 @@ server <- function(input, output) {
     chart_title <- "Analysis of RFL Performance"
     line_colr <- input$color
     median_colr <- input$color2
+    #point_size <- input$point_size
+    #highlight_point_size <- input$highlight_point_size
     
     plot <- plot_data%>%
       runcharter(grpvar="grp",datecol="date",yval="y"
@@ -115,6 +119,10 @@ server <- function(input, output) {
                  #point_colr ="red" ##005EB8",    # blue
                  ,median_colr = median_colr #"#E87722",  # orange
                  ,sus_fill = "#DB1884"     # magenta
+                 ,point_size = 3.5 #point_size
+                 ,highlight_point_size = 4 #highlight_point_size
+                 ,line_size = 1
+                 
       )
     plot
     
